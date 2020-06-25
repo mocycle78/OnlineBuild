@@ -16,15 +16,22 @@ steps:
 
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(System.ArtifactStagingDirectory)'
-    zipAfterPublish: True
 
-- task: IISWebAppDeploymentOnMachineGroup@0
+- task: DotNetCoreCLI@2
+  displayName: Publish
   inputs:
-    WebSiteName: 'BlueTestApp'
-    VirtualApplication: 'Blueapp'
-    Package: '$(Build.ArtifactStagingDirectory)\**\*.zip'
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+  condition: succeededOrFailed()
+
+
