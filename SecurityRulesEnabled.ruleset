@@ -2,7 +2,7 @@
 <RuleSet Name="Security Rules Enabled with default severity" Description="All Security Rules are enabled with default severity. Security Rules with IsEnabledByDefault = false are force enabled with default severity. Rules from a different category are disabled." ToolsVersion="15.0">
   <!-- Security Rules -->
   <Rules AnalyzerId="Microsoft.CodeAnalysis.FxCopAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.FxCopAnalyzers">
-    <Rule Id="CA2100" Action="Error" />
+    <Rule Id="CA2100" Action="Warning" />
     <!-- Review SQL queries for security vulnerabilities -->
     <Rule Id="CA2119" Action="Warning" />
     <!-- Seal methods that satisfy private interfaces -->
@@ -429,6 +429,6 @@
     <!-- Analyzer version mismatch -->
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
-    <Rule Id="CA2100" Action="Error" />
+    <Rule Id="CA2100" Action="Warning" />
   </Rules>
 </RuleSet>
