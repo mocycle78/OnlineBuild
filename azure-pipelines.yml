@@ -35,9 +35,3 @@ steps:
   condition: succeededOrFailed()
 
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(build.artifactstagingdirectory)'
-    Contents: '**'
-    TargetFolder: '\\$(Machine)\C$\BuildTestApp'
-    CleanTargetFolder: true
