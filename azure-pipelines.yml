@@ -11,6 +11,13 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  destinationMachines: 'BLUE2016IIS3.blue.com'
+  svc-rmagent: 'svc-rmagent@blue.com'
+  Deployment.DriveLetter: 'C'
+  serviceFilePath: 'C:\BuildTestApp'
+  Deployment.AppPool.Name: 'BuildTestApp'
+  Deployment.WebSite.Port: '80'
+  Deployment.WebSite.HostHeader: 'bluetestapp.blue.com'
 
 steps:
 
@@ -34,4 +41,69 @@ steps:
     PathtoPublish: '$(build.artifactstagingdirectory)'
   condition: succeededOrFailed()
 
+
+- task: PowerShellOnTargetMachines@3
+  displayName: 'Ensure Deployment Path'
+  inputs:
+    Machines: '$(destinationMachines)'
+    UserName: '$(svc-rmagent)'
+    UserPassword: '$(svc-rmagent_PW)'
+    ScriptType: FilePath
+    ScriptPath: '$(Deployment.DriveLetter):\Scripts\EnsureDirectory.ps1'
+    ScriptArguments: '-path $(serviceFilePath)'
+    CommunicationProtocol: Http
+
+- task: PowerShellOnTargetMachines@3
+  displayName: 'Ensure App Pool'
+  inputs:
+    Machines: '$(destinationMachines)'
+    UserName: '$(svc-rmagent)'
+    UserPassword: '$(svc-rmagent_PW)'
+    ScriptType: FilePath
+    ScriptPath: '$(Deployment.DriveLetter):\Scripts\EnsureAppPool.ps1'
+    ScriptArguments: '-name $(Deployment.AppPool.Name) -serviceAccount $(serviceAccount) -serviceAccountPassword $(serviceAccountPW)'
+    CommunicationProtocol: Http
+
+- task: PowerShellOnTargetMachines@3
+  displayName: 'Ensure Website'
+  inputs:
+    Machines: '$(destinationMachines)'
+    UserName: '$(svc-rmagent)'
+    UserPassword: '$(svc-rmagent_PW)'
+    ScriptType: FilePath
+    ScriptPath: '$(Deployment.DriveLetter):\Scripts\EnsureWebSite.ps1'
+    ScriptArguments: '-name $(Deployment.WebSite.Name) -path $(serviceFilePath) -port $(Deployment.WebSite.Port) -hostHeader $(Deployment.WebSite.HostHeader)'
+    CommunicationProtocol: Http
+
+- task: PowerShellOnTargetMachines@3
+  displayName: 'Stop App Pool'
+  inputs:
+    Machines: '$(destinationMachines)'
+    UserName: '$(svc-rmagent)'
+    UserPassword: '$(svc-rmagent_PW)'
+    ScriptType: FilePath
+    ScriptPath: '$(Deployment.DriveLetter):\Scripts\StartStopAppPool.ps1'
+    ScriptArguments: '$(Deployment.AppPool.Name) Stop'
+    CommunicationProtocol: Http
+
+- task: WindowsMachineFileCopy@2
+  displayName: 'Deploy Website to Destination'
+  inputs:
+    SourcePath: '$(System.DefaultWorkingDirectory)/drop/drop'
+    MachineNames: '$(destinationMachines)'
+    AdminUserName: '$(svc-rmagent)'
+    AdminPassword: '$(svc-rmagent_PW)'
+    TargetPath: '$(serviceFilePath)'
+    CleanTargetBeforeCopy: true
+
+- task: PowerShellOnTargetMachines@3
+  displayName: 'Start App Pool'
+  inputs:
+    Machines: '$(destinationMachines)'
+    UserName: '$(svc-rmagent)'
+    UserPassword: '$(svc-rmagent_PW)'
+    ScriptType: FilePath
+    ScriptPath: '$(Deployment.DriveLetter):\Scripts\StartStopAppPool.ps1'
+    ScriptArguments: '$(Deployment.AppPool.Name) Start'
+    CommunicationProtocol: Http
 
