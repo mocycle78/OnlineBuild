@@ -39,5 +39,5 @@ steps:
   inputs:
     SourceFolder: '$(build.artifactstagingdirectory)'
     Contents: '**'
-    TargetFolder: '\\$(Machine)\C:\BuildTestApp'
+    TargetFolder: '\\$(Machine)\C$\BuildTestApp'
     CleanTargetFolder: true
